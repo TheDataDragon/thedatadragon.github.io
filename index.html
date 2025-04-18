@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Auto Video Gallery</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #111;
+      color: #eee;
+      padding: 2rem;
+    }
+    h1 {
+      text-align: center;
+    }
+    #videoList {
+      margin-top: 2rem;
+    }
+    .videoItem {
+      padding: 10px;
+      background: #222;
+      border: 1px solid #444;
+      margin: 10px 0;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    .videoItem:hover {
+      background-color: #333;
+    }
+    video {
+      width: 100%;
+      max-height: 500px;
+      margin-top: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎬 My Video Vault</h1>
+
+  <div id="videoList">Loading videos...</div>
+
+  <video id="videoPlayer" controls></video>
+
+  <script>
+    const username = "TheDataDragon"; // 🔁 Change this
+    const repo = "thedatadragon.github.io";         // 🔁 Change this
+    const branch = "main";            // or "master" depending on your repo
+
+    const apiUrl = `https://api.github.com/repos/${username}/${repo}/contents/`;
+
+    const allowedExtensions = [".mp4", ".webm", ".ogg"];
+    const videoList = document.getElementById("videoList");
+    const player = document.getElementById("videoPlayer");
+
+    fetch(apiUrl)
+      .then(res => res.json())
+      .then(files => {
+        const videoFiles = files.filter(file => {
+          return allowedExtensions.some(ext => file.name.toLowerCase().endsWith(ext));
+        });
+
+        if (videoFiles.length === 0) {
+          videoList.innerHTML = "No videos found in the repository.";
+          return;
+        }
+
+        videoList.innerHTML = ""; // Clear loading message
+
+        videoFiles.forEach(file => {
+          const div = document.createElement("div");
+          div.className = "videoItem";
+          div.textContent = file.name;
+          div.onclick = () => {
+            player.src = `https://${username}.github.io/${repo}/${file.name}`;
+            player.play();
+          };
+          videoList.appendChild(div);
+        });
+      })
+      .catch(err => {
+        console.error(err);
+        videoList.innerHTML = "Failed to load videos. Check console.";
+      });
+  </script>
+</body>
+</html>
